@@ -1,8 +1,11 @@
 using Azure.Storage.Blobs;
+using ChrisUsher.Core.Services.Interfaces;
+using ChrisUsher.Core.Services.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Services.Database;
 using Shared.Config;
 
 namespace Services;
@@ -121,4 +124,38 @@ public static class Services
         return services;
     }
 
+    internal static string ResolveCosmosDatabaseName(IConfiguration configuration, string environment)
+    {
+        var configuredDatabaseName = configuration["Database:DatabaseName"] ?? configuration["Database__DatabaseName"];
+
+        if (!string.IsNullOrWhiteSpace(configuredDatabaseName))
+        {
+            return configuredDatabaseName;
+        }
+
+        return $"StockTraderAgent-{environment ?? "Development"}";
+    }
+
+    internal static string NormaliseCosmosAccountEndpoint(string? accountEndpoint)
+    {
+        if (string.IsNullOrWhiteSpace(accountEndpoint))
+        {
+            return string.Empty;
+        }
+
+        var trimmed = accountEndpoint.Trim();
+
+        if (trimmed.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return trimmed.TrimEnd('/') + "/";
+        }
+
+        if (trimmed.Contains("documents.azure.com", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"https://{trimmed.Trim('/')}";
+        }
+
+        return $"https://{trimmed.Trim('/')}.documents.azure.com:443/";
+    }
 }
