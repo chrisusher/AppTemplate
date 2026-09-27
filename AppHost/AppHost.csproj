@@ -10,11 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\app-template.ApiService\app-template.ApiService.csproj" />
-    <ProjectReference Include="..\app-template.Web\app-template.Web.csproj" />
+    <ProjectReference Include="..\API\API.csproj" />
+    <ProjectReference Include="..\Web\Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.Azure.Functions" Version="13.5.4" />
+    <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="13.5.4" />
     <PackageReference Include="Aspire.Hosting.Redis" Version="13.5.4" />
   </ItemGroup>
 
