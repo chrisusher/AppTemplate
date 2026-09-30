@@ -53,11 +53,11 @@ public static class Services
                 .WithName("AppTemplate");
 
             // Add KeyVault
-            // var keyVaultConfig = configuration
-            //     .GetSection("KeyVault")
-            //     .Get<KeyVaultConfig>();
+            var keyVaultConfig = configuration
+                .GetSection("KeyVault")
+                .Get<KeyVaultConfig>();
 
-            // config.AddSecretClient(new Uri(configuration["KEYVAULT_URI"] ?? throw new InvalidOperationException("KEYVAULT_URI is not set in configuration")));
+            config.AddSecretClient(new Uri(configuration["APP_TEMPLATE_SECRETS_URI"] ?? throw new InvalidOperationException("APP_TEMPLATE_SECRETS_URI is not set in configuration")));
         });
 
         #endregion
@@ -70,28 +70,28 @@ public static class Services
             .GetSection("Global")
             .Get<GlobalConfig>() ?? new GlobalConfig();
 
-//         services.AddDbContext<DatabaseContext>(options =>
-//         {
-//             var accountEndpoint = NormaliseCosmosAccountEndpoint(configuration["Database:AccountName"] ?? configuration["Database__AccountName"] ?? string.Empty);
-//             var accountKey = configuration["Database:Key"] ?? configuration["Database__Key"] ?? string.Empty;
+        services.AddDbContext<DatabaseContext>(options =>
+        {
+            var accountEndpoint = NormaliseCosmosAccountEndpoint(configuration["database:accountEndpoint"] ?? configuration["database__accountEndpoint"] ?? string.Empty);
+            var accountKey = configuration["Database:Key"] ?? configuration["Database__Key"] ?? string.Empty;
 
-//             var databaseName = ResolveCosmosDatabaseName(configuration, globalConfig.Environment);
+            var databaseName = ResolveCosmosDatabaseName(configuration, globalConfig.Environment);
 
-//             Console.WriteLine($"[AppTemplate] Using Cosmos endpoint '{accountEndpoint}' and database '{databaseName}'.");
+            Console.WriteLine($"[AppTemplate] Using Cosmos endpoint '{accountEndpoint}' and database '{databaseName}'.");
 
-//             options.UseCosmos(
-//                 accountEndpoint,
-//                 accountKey,
-//                 databaseName
-//             );
+            options.UseCosmos(
+                accountEndpoint,
+                accountKey,
+                databaseName
+            );
 
-//             options.EnableSensitiveDataLogging();
+            options.EnableSensitiveDataLogging();
 
-// #if DEBUG
-//             options.EnableDetailedErrors();
-//             options.LogTo(Console.WriteLine, LogLevel.Information);
-// #endif
-//         });
+#if DEBUG
+            options.EnableDetailedErrors();
+            options.LogTo(Console.WriteLine, LogLevel.Information);
+#endif
+        });
 
         services.AddTransient<IStorageService>(services =>
         {

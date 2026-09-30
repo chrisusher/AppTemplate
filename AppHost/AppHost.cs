@@ -29,7 +29,8 @@ storage.AddQueues("queues");
 storage.AddTables("tables");
 
 // Cosmos DB
-var cosmosDb = builder.AddAzureCosmosDB("cosmosDb");
+var cosmosDb = builder.AddAzureCosmosDB("cosmosDb")
+.WithAccessKeyAuthentication();
 
 var database = cosmosDb.AddCosmosDatabase("database", "app-template");
 database.AddContainer("weather", "/id", "weather");
@@ -54,6 +55,8 @@ var api = builder.AddAzureFunctionsProject("API", "../API/API.csproj")
     .WaitFor(blobs)
     .WithHostStorage(storage)
     .WithEnvironment("ConnectionStrings__Storage", blobs.Resource.ConnectionStringExpression)
+    .WithEnvironment("Database__DatabaseName", database.Resource.DatabaseName)
+    .WithEnvironment("Database__Key", cosmosDb.Resource.AccountKey!)
     .WithEnvironment("Global__Environment", environment)
     .WithEnvironment("OTEL_EXPORTER_OTLP_ENDPOINT", dashboardOtlpEndpoint)
     .WithEnvironment("OTEL_EXPORTER_OTLP_PROTOCOL", otlpProtocol)
